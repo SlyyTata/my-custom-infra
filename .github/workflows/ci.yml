@@ -5,18 +5,25 @@ name: To automate the infrastructure with Terraform
 on:
   push:
     branches: [ "main" ]
-  pull_request:
 
-
+# This starts and group all the actions of this workflow
 jobs:
+  # Unique identifier for this job block just like using the stages block in Jenkins
   build:
+    #Permissions for this workflow
     permissions:
+      # Asking github to generate a token from the OIDC and permission to create resources in the AWS console 
       id-token: write  
+      # Giving this workflow permission to read repo codes
       contents: read
       
+    #Asking this workflow to be run on a fresh latest ubuntu machine
     runs-on: ubuntu-latest
-
+    
+    #This is the list of actions that will be executed in this workflow
     steps:
+
+      #copy the repo code to the workflow machine so this workflow can access it.
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -27,12 +34,13 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.ROLE }}
 
-          #Set up terraform
+       #To setup terraform in the workflow machine
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.16.6"
 
+      #to Initialize terraform.
       - name: Terraform Init
         run: terraform init
 
