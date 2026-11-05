@@ -76,7 +76,6 @@ resource "aws_nat_gateway" "my_nat_gateway" {
   }
 }
 
-
 #Creating a route table and associating it with the subnets to allow communication between the subnets and the internet gateway.
 resource "aws_route_table" "pub_route_table" {
   vpc_id = aws_vpc.my_vpc.id
@@ -185,79 +184,6 @@ resource "aws_security_group" "service_sg" {
   }
 }
 
-#Creating an s3 bucket to serve as the remote state backend
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = var.bucket_name
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-}
-
-#Adding ownership controls to the S3 bucket to ensure that the bucket owner has full control over the objects in the bucket.
-resource "aws_s3_bucket_ownership_controls" "my_bucket_ownership" {
-  bucket = aws_s3_bucket.my_bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-#Setting the ACL of the S3 bucket to private to ensure that only the bucket owner has access to the objects in the bucket.
-resource "aws_s3_bucket_acl" "my_bucket_acl" { 
-  depends_on = [aws_s3_bucket_ownership_controls.my_bucket_ownership]
-  bucket = aws_s3_bucket.my_bucket.id
-  acl    = "private"
-}
-
-
-#Enabling versioning on the S3 bucket to keep multiple versions of an object in the same bucket.
-resource "aws_s3_bucket_versioning" "my_bucket_versioning" {
-  bucket = aws_s3_bucket.my_bucket.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-#Enabling object lock on the S3 bucket to prevent objects from being deleted or overwritten for a specified period of time.
-resource "aws_s3_bucket_object_lock_configuration" "my_bucket_lock" {
-  bucket = aws_s3_bucket.my_bucket.id
-  depends_on = [aws_s3_bucket_versioning.my_bucket_versioning]
-
-  rule {
-    default_retention {
-      mode = "GOVERNANCE"
-      days = 30
-    }
-  }
-}
-
-#Creating a KMS key to encrypt the S3 bucket and enabling server-side encryption on the S3 bucket using the KMS key.
-resource "aws_kms_key" "my_kms_key" {
-  description             = var.kms_key
-  deletion_window_in_days = 10
-  enable_key_rotation     = true
-
-  tags = {
-    Name        = "My-KMS-Key"
-    Environment = "Dev"
-  }
-}
-
-#Enabling server-side encryption on the S3 bucket using the KMS key created above.
-resource "aws_s3_bucket_server_side_encryption_configuration" "my_bucket_encryption" {
-  bucket = aws_s3_bucket.my_bucket.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = aws_kms_key.my_kms_key.arn
-    }
-  }
-}
-
 #Creating an ECS task definition to run a containerized docker application on Fargate.
 resource "aws_ecs_task_definition" "my_task_definition" {
   family                   = var.ecs_task_definition_name
@@ -268,7 +194,7 @@ resource "aws_ecs_task_definition" "my_task_definition" {
 
   container_definitions = jsonencode([
     {
-      name      = "nginx-app"
+      name      = var.container_name
       image     = var.docker-image
       essential = true
       portMappings = [
@@ -299,7 +225,7 @@ resource "aws_ecs_service" "my_ecs_service" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ecs_tg.arn
-    container_name   = "nginx-app"
+    container_name   = var.container_name
     container_port   = var.container_port           
   }
 

@@ -28,16 +28,6 @@ variable "priv_subnet_cidr_block_2" {
   type        = string
 }
 
-variable "bucket_name" {
-  description = "The name of the S3 bucket"
-  type        = string
-}
-
-variable "kms_key" {
-  description = "Description for the KMS key"
-  type        = string
-}
-
 variable "region" {
   description = "The AWS region to deploy the resources"
   type        = string
@@ -76,5 +66,10 @@ variable "container_port" {
 
 variable "certificate_arn" {
   description = "The ACM certificate arn"
+  type        = string
+}
+
+variable "container_name" {
+  description = "The name of the container"
   type        = string
 }

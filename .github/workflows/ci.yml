@@ -6,11 +6,8 @@ on:
   push:
     branches: [ "main" ]
 
-# This starts and group all the actions of this workflow
 jobs:
-  # Unique identifier for this job block just like using the stages block in Jenkins
   build:
-    #Permissions for this workflow
     permissions:
       # Asking github to generate a token from the OIDC and permission to create resources in the AWS console 
       id-token: write  
