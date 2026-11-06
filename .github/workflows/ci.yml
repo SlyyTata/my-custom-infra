@@ -5,6 +5,7 @@ name: To automate the infrastructure with Terraform
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch: # 👈 This line adds the manual "Run workflow" button
 
 jobs:
   build:

@@ -2,10 +2,6 @@ output "vpc_id" {
   value = aws_vpc.my_vpc.id
 }
 
-output "s3_bucket_name" {
-  value = aws_s3_bucket.my_bucket.bucket
-}
-
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.my_ecs_cluster.name
 }
