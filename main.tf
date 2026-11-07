@@ -195,7 +195,7 @@ resource "aws_ecs_task_definition" "my_task_definition" {
   container_definitions = jsonencode([
     {
       name      = var.container_name
-      image     = var.docker-image
+      image     = "public.ecr.aws/nginx/nginx:alpine"
       essential = true
       portMappings = [
         {
@@ -205,6 +205,10 @@ resource "aws_ecs_task_definition" "my_task_definition" {
       ]
     }
   ])
+  # Prevents Terraform from reverting the image tag to be created later.
+  lifecycle {
+    ignore_changes = [container_definitions]
+  }
 }
 
 #Creating an ECS service to run the task definition on Fargate and associating it with the security group created above.
@@ -233,6 +237,10 @@ resource "aws_ecs_service" "my_ecs_service" {
     subnets         = [aws_subnet.priv-subnet.id, aws_subnet.priv-subnet-2.id]
     security_groups = [aws_security_group.service_sg.id]
     assign_public_ip = false
+  }
+  # Prevents Terraform from rolling your service back from future changes
+  lifecycle {
+    ignore_changes = [task_definition]
   }
 }
 
