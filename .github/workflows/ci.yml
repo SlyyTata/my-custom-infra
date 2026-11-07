@@ -45,6 +45,20 @@ jobs:
       - name: Terraform Plan
         env:
           TF_VAR_certificate_arn: ${{ secrets.ACM_CERTIFICATE_ARN }}
+          TF_VAR_vpc_name: ${{ secrets.vpc_name }}
+          TF_VAR_cidr_block: ${{ secrets.cidr_block }}
+          TF_VAR_pub_subnet_cidr_block: ${{ secrets.pub_subnet_cidr_block }}
+          TF_VAR_pub_subnet_cidr_block_2: ${{ secrets.pub_subnet_cidr_block_2 }}
+          TF_VAR_priv_subnet_cidr_block_1: ${{ secrets.priv_subnet_cidr_block_1 }}
+          TF_VAR_priv_subnet_cidr_block_2: ${{ secrets.priv_subnet_cidr_block_2 }}
+          TF_VAR_region: ${{ secrets.region }}
+          TF_VAR_docker-image: ${{ secrets.docker-image }}
+          TF_VAR_ecs_cluster_name: ${{ secrets.ecs_cluster_name }}
+          TF_VAR_ecs_service_name: ${{ secrets.ecs_service_name }}
+          TF_VAR_ecs_task_definition_name: ${{ secrets.ecs_task_definition_name }}
+          TF_VAR_lb_name: ${{ secrets.lb_name }}
+          TF_VAR_container_port: ${{ secrets.container_port }}
+          TF_VAR_container_name: ${{ secrets.container_name }}
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
