@@ -135,15 +135,8 @@ resource "aws_security_group" "my_security_group" {
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 8008
-    to_port     = 8008
+    from_port   = var.container_port
+    to_port     = var.container_port
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -170,8 +163,8 @@ resource "aws_security_group" "service_sg" {
   vpc_id      = aws_vpc.my_vpc.id
 
   ingress {
-    from_port   = 8008
-    to_port     = 8008
+    from_port   = var.container_port
+    to_port     = var.container_port
     protocol    = "tcp"
     security_groups = [aws_security_group.my_security_group.id]
   }
@@ -267,7 +260,7 @@ resource "aws_lb" "application_lb" {
 # 2. ALB Target Group
 resource "aws_lb_target_group" "ecs_tg" {
   name        = "ecs-fargate-tg"
-  port        = 8008       
+  port        = var.container_port       
   protocol    = "HTTP"
   vpc_id      = aws_vpc.my_vpc.id
   
@@ -278,7 +271,7 @@ resource "aws_lb_target_group" "ecs_tg" {
     enabled             = true
     path                = "/health" # Ensure your app actually serves this endpoint
     protocol            = "HTTP"
-    port                = "8008" # Matches the port defined above (8080)
+    port                = var.container_port
     interval            = 30
     timeout             = 10
     healthy_threshold   = 3
